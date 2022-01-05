@@ -8,7 +8,7 @@ import inflection
 from crunchdao import utils
 
 
-BASE_URL = "https://tournament.crunchdao.com/api"
+BASE_URL = "https://api.tournament.crunchdao.com"
 
 
 logger = logging.getLogger(__name__)
