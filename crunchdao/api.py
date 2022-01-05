@@ -91,7 +91,7 @@ class Client:
             >>> client.upload(predictions)
         """
         response = requests.post(
-            BASE_URL + "/v2/submission",
+            BASE_URL + "/v2/submissions",
             files={"file": ("x", predictions.to_csv().encode('ascii'))},
             data={"apiKey": self.apikey})
 

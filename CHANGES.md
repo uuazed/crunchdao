@@ -1,6 +1,8 @@
 # Changes
 Notable changes to this project.
 
+## v0.1.2 - 2022-01-05
+- fix predictions upload
 
 ## v0.1.1 - 2022-01-05
 - Use dedicated API access endpoint (fixes #2)
