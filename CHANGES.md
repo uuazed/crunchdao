@@ -1,6 +1,9 @@
 # Changes
 Notable changes to this project.
 
+## v0.1.3 - 2022-01-19
+- adjust type hints, to allow using Python versions <3.9
+
 ## v0.1.2 - 2022-01-05
 - fix predictions upload
 
