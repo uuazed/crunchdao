@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Dict, List
 
 import requests
 import pandas as pd
@@ -30,7 +31,7 @@ class Client:
             self.apikey = apikey
 
     def raw_request(self, url: str, params: dict = None,
-                    authorization: bool = False) -> dict:
+                    authorization: bool = False) -> Dict:
         """Send a raw request to the crunchdao API.
 
         Args:
@@ -58,7 +59,7 @@ class Client:
         # FIXME add error handling
         return response.json()
 
-    def download_data(self, directory: str = ".") -> list[str]:
+    def download_data(self, directory: str = ".") -> List[str]:
         """Download training data, targets and test data
 
         Args:
@@ -214,7 +215,7 @@ class Client:
         df.columns = [inflection.underscore(col) for col in df.columns]
         return df
 
-    def dataset_config(self, round_num: int = None) -> dict:
+    def dataset_config(self, round_num: int = None) -> Dict:
         """Get the dataset configuration for some round
 
         Args:
