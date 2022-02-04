@@ -80,6 +80,28 @@ class Client:
             paths.append(path)
         return paths
 
+    def select_submission(self, submission_id: int) -> None:
+        """Select a submission.
+
+        Args:
+            submission_id (int): ID of the submission to be selected
+
+        Example:
+            >>> client = crunchdao.Client()
+            >>> submission_id = client.upload(...)
+            >>> client.select_submission(submission_id)
+            Submission selected.
+        """
+        response = requests.patch(
+            f"{BASE_URL}/v2/submissions/{submission_id}",
+            json={"selected": True},
+            params={"apiKey": self.apikey})
+        if response.status_code == 200:
+            logger.info("Submission selected.")
+        else:
+            logger.error("Selecting submission failed")
+            logger.error(response.content)
+
     def set_comment(self, submission_id: int, comment: str) -> None:
         """Set comment of a submission
 
