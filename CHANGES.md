@@ -1,6 +1,9 @@
 # Changes
 Notable changes to this project.
 
+## dev
+- added functionality to set the comment for your submission
+
 ## v0.1.3 - 2022-01-19
 - adjust type hints, to allow using Python versions <3.9
 

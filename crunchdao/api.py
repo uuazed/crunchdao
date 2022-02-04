@@ -30,7 +30,7 @@ class Client:
         else:
             self.apikey = apikey
 
-    def raw_request(self, url: str, params: dict = None,
+    def raw_request(self, url: str, params: Dict = None,
                     authorization: bool = False) -> Dict:
         """Send a raw request to the crunchdao API.
 
@@ -80,11 +80,37 @@ class Client:
             paths.append(path)
         return paths
 
-    def upload(self, predictions: pd.DataFrame) -> None:
+    def set_comment(self, submission_id: int, comment: str) -> None:
+        """Set comment of a submission
+
+        Args:
+            submission_id (int): ID of the relevant submission
+            comment (str)
+
+        Example:
+            >>> client = crunchdao.Client()
+            >>> submission_id = client.upload(...)
+            >>> client.set_comment(submission_id, "bla bla")
+            Comment set.
+        """
+        response = requests.patch(
+            f"{BASE_URL}/v2/submissions/{submission_id}",
+            json={"comment": comment},
+            params={"apiKey": self.apikey})
+        if response.status_code == 200:
+            logger.info("Comment set.")
+        else:
+            logger.error("setting comment failed")
+            logger.error(response.content)
+
+    def upload(self, predictions: pd.DataFrame) -> int:
         """Upload predictions to the tournament
 
         Args:
             predictions (pd.DataFrame): dataframe with your predictions
+
+        Returns:
+            int: ID of the submission
 
         Example:
             >>> client = crunchdao.Client()
@@ -131,6 +157,8 @@ class Client:
             logger.info("Ouch! It seems that we were not expecting this kind "
                         "of result from the server, if the probleme persist, "
                         "contact a cruncher.")
+        submission_id = response.json()["id"]
+        return submission_id
 
     def submissions(self, user_id: int = None,
                     round_num: int = None) -> pd.DataFrame:
