@@ -27,4 +27,8 @@ environment variable
     client.dataset_config()    
     # upload predictions
     predictions = ....  # pandas DataFrame containing your predictions  
-    client.upload(predictions)
+    submission_id = client.upload(predictions)
+    # set comment for the submission, to remember which model that is etc
+    client.set_comment(submission_id, "Great model, learning_rate=0.01")
+    # pick your final submission
+    client.select_submission(submission_id)
