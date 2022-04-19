@@ -24,11 +24,7 @@ class Client:
         Args:
             apikey (str, optional): your crunchdao API key
         """
-        if apikey is None:
-            # try getting apikey from env variable
-            self.apikey = os.getenv("CRUNCHDAO_API_KEY")
-        else:
-            self.apikey = apikey
+        self.apikey = os.getenv("CRUNCHDAO_API_KEY") if apikey is None else apikey
 
     def raw_request(self, url: str, params: Dict = None,
                     authorization: bool = False) -> Dict:
@@ -179,8 +175,7 @@ class Client:
             logger.info("Ouch! It seems that we were not expecting this kind "
                         "of result from the server, if the probleme persist, "
                         "contact a cruncher.")
-        submission_id = response.json()["id"]
-        return submission_id
+        return response.json()["id"]
 
     def submissions(self, user_id: int = None,
                     round_num: int = None) -> pd.DataFrame:
@@ -308,9 +303,7 @@ class Client:
         for item in ["id", "dataset"]:
             del data[item]
 
-        cleaned = {inflection.underscore(key): val
-                   for key, val in data.items()}
-        return cleaned
+        return {inflection.underscore(key): val for key, val in data.items()}
 
     def last_crunch(self) -> int:
         """Get the crunch number of the last crunch you uploaded to this round
