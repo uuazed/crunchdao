@@ -1,6 +1,9 @@
 # Changes
 Notable changes to this project.
 
+## dev
+- remove `select_submission` - no longer needed with the tournament rule changes
+
 ## v0.1.4 - 2022-02-04
 - added `set_comment` to set or update the comment associated with a submission
 - added `select_submission` to select a submission
