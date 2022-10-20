@@ -269,20 +269,6 @@ class Client:
                    for key, val in data.items()}
         return cleaned
 
-    def last_crunch(self) -> int:
-        """Get the crunch number of the last crunch you uploaded to this round
-
-        Returns:
-            int
-
-        Example:
-            >>> crunchdao.Client().last_crunch()
-            42
-        """
-        current_round = self.dataset_config()["round_id"]
-        subs = self.submissions(round_num=current_round)
-        return subs["crunch_number"].max()
-
 
 if __name__ == "__main__":
     client = Client()
