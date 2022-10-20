@@ -177,34 +177,16 @@ class Client:
                 * user_id (`int`)
                 * username (`str`)
                 * deleted (`bool`)
-                * role (`str`)
-                * crunch_number (`int`)
-                * crunch_ts (`datetime`)
-                * round_id (`int`)
-                * final_crunch (`str`)
+                * administrator (`bool`)
+                * status (`str`)
                 * upload_ts (`datetime`)
                 * eval_ts (`datetime`)
-                * selected (`bool`)
-                * selected_by (`str`)
                 * comment (`str`)
+                * message (`str`)
+                * trace (`str`)
                 * file_hash (`str`)
                 * file_name (`str`)
-                * chosen (`bool`)
-                * private_success (`bool`)
-                * private_r (`float`)
-                * private_g (`float`)
-                * private_b (`float`)
-                * private_mean (`float`)
-                * private_message (`str`)
-                * private_originality (`float`)
-                * private_arena_score (`float`)
-                * public_success (`bool`)
-                * public_r (`float`)
-                * public_g (`float`)
-                * public_b (`float`)
-                * public_mean (`float`)
-                * public_message (`str`)
-                * public_originality (`float`)
+                * file_length (`int`)
 
         Example:
             >>> crunchdao.Client().submissions(round_num=89)
@@ -221,25 +203,19 @@ class Client:
             params["round"] = round_num
         data = self.raw_request(url, params, authorization=authorization)
 
-        private = pd.DataFrame([item["private"] for item in data
-                                if "private" in item])
-        private.columns = ["private_" + col for col in private.columns]
-
-        public = pd.DataFrame([item["public"] for item in data])
-        public.columns = ["public_" + col for col in public.columns]
         user = pd.DataFrame([item["user"] for item in data])
         user.rename(columns={"id": "user_id"}, inplace=True)
-        crunch = pd.DataFrame([item["crunch"] for item in data])
-        crunch.rename(columns={"number": "crunch_number",
-                               "final": "final_crunch",
-                               "at": "crunch_ts"}, inplace=True)
-        crunch.drop("id", inplace=True, axis=1)
+
+        file_meta = pd.DataFrame([item["fileMetadata"] for item in data])
+        columns = {col: "file_" + col for col in file_meta}
+        file_meta.rename(columns=columns, inplace=True)
+
         general = pd.DataFrame.from_dict(data)
         general.rename(columns={"uploadedAt": "upload_ts",
                                 "evaluatedAt": "eval_ts"}, inplace=True)
-        general.drop(["user", "crunch", "private", "public", "userId"],
+        general.drop(["user", "userId", "fileMetadata"],
                      axis=1, inplace=True, errors="ignore")
-        df = pd.concat([user, crunch, general, private, public], axis=1)
+        df = pd.concat([user, general, file_meta], axis=1)
         df.set_index("id", inplace=True)
 
         # convert CamelCase to snake_case
