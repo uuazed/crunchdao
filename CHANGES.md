@@ -1,7 +1,7 @@
 # Changes
 Notable changes to this project.
 
-## dev
+## v.0.2.0 - 2022-10-20
 - remove `select_submission` - no longer needed with the tournament rule changes
 - make `upload` more robust
 - `submissions` adapted to latest tournament changes
