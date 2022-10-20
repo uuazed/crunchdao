@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 import requests
 import pandas as pd
@@ -103,7 +103,7 @@ class Client:
             logger.error("setting comment failed")
             logger.error(response.content)
 
-    def upload(self, predictions: pd.DataFrame) -> int:
+    def upload(self, predictions: pd.DataFrame) -> Optional[int]:
         """Upload predictions to the tournament
 
         Args:
@@ -124,6 +124,8 @@ class Client:
 
         if response.status_code == 200:
             logger.info("Submission submitted :)")
+            submission_id = response.json()["id"]
+            return submission_id
         elif response.status_code == 423:
             logger.error("Submissions are close")
             logger.info("You can only submit during rounds eg: "
@@ -143,6 +145,9 @@ class Client:
         elif response.status_code == 401:
             logger.error("Your email hasn't been verified")
             logger.info("Please verify your email or contact a cruncher.")
+        elif response.status_code == 403:
+            logger.error("Access Denied")
+            logger.info("Please setup your API_KEY.")
         elif response.status_code == 409:
             logger.error("Duplicate submission")
             logger.info("Your work has already been submitted with the exact "
@@ -157,8 +162,6 @@ class Client:
             logger.info("Ouch! It seems that we were not expecting this kind "
                         "of result from the server, if the probleme persist, "
                         "contact a cruncher.")
-        submission_id = response.json()["id"]
-        return submission_id
 
     def submissions(self, user_id: int = None,
                     round_num: int = None) -> pd.DataFrame:
