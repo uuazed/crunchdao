@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "crunchdao"
-version = "v0.2.0"
+version = "v0.2.1"
 description = "Python API for the Crunchdao machine learning tournament"
 authors = ["uuazed <uuazed@gmail.com>"]
 license = "MIT License"
