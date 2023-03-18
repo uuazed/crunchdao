@@ -119,7 +119,7 @@ class Client:
         """
         response = requests.post(
             BASE_URL + "/v2/submissions",
-            files={"file": ("x", predictions.to_csv().encode('ascii'))},
+            files={"file": ("x", predictions.to_csv(index=False).encode('ascii'))},
             data={"apiKey": self.apikey})
 
         if response.status_code == 200:
