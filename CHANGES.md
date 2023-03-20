@@ -1,7 +1,7 @@
 # Changes
 Notable changes to this project.
 
-##
+## v0.2.2 - 2023-03-20
 - support downloading data in `parquet` format
 
 ## v0.2.1 - 2023-03-18
