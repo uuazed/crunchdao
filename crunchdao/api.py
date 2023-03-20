@@ -61,7 +61,7 @@ class Client:
 
     def download_data(self, directory: str = ".",
                       file_format: str = "csv") -> List[str]:
-        """Download training data, targets and test data
+        """Download training data, targets, test data and a submission example
 
         Args:
             directory (str): directory where the files are downloaded to
@@ -73,11 +73,11 @@ class Client:
         Example:
             >>> client = crunchdao.Client()
             >>> client.download_data()
-            ['./X_train.csv', './y_train.csv', './X_test.csv']
+            ['./X_train.csv', './y_train.csv', './X_test.csv', './example_submission.csv']
         """
         assert file_format in {"csv", "parquet"}, "unknown file format"
         paths = []
-        for dataset in ["X_train", "y_train", "X_test"]:
+        for dataset in ["X_train", "y_train", "X_test", "example_submission"]:
             filename = f"{dataset}.{file_format}"
             url = f'https://tournament.crunchdao.com/data/{filename}'
             path = utils.download_file(url, os.path.join(directory, filename))
