@@ -59,11 +59,13 @@ class Client:
         # FIXME add error handling
         return response.json()
 
-    def download_data(self, directory: str = ".") -> List[str]:
+    def download_data(self, directory: str = ".",
+                      file_format: str = "csv") -> List[str]:
         """Download training data, targets and test data
 
         Args:
             directory (str): directory where the files are downloaded to
+            file_format (str): `csv` or 'parquet`
 
         Returns:
             list[str]: Paths to the three files
@@ -73,8 +75,10 @@ class Client:
             >>> client.download_data()
             ['./X_train.csv', './y_train.csv', './X_test.csv']
         """
+        assert file_format in {"csv", "parquet"}, "unknown file format"
         paths = []
-        for filename in ["X_train.csv", "y_train.csv", "X_test.csv"]:
+        for dataset in ["X_train", "y_train", "X_test"]:
+            filename = f"{dataset}.{file_format}"
             url = f'https://tournament.crunchdao.com/data/{filename}'
             path = utils.download_file(url, os.path.join(directory, filename))
             paths.append(path)
