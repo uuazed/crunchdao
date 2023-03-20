@@ -1,2 +1,6 @@
 *csv
 __pycache__
+venv/
+env/
+*.lock
+requirements.txt
