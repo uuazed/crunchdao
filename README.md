@@ -1,11 +1,15 @@
-[![PyPi version](https://badgen.net/pypi/v/crunchdao/)](https://pypi.com/project/crunchdao)
-
 # Python API for the Crunchdao machine learning tournament
+<h1 align="center">
+
+[![PyPi version](https://badgen.net/pypi/v/crunchdao/)](https://pypi.com/project/crunchdao)
+</h1>
+
 Interact with the Crunchdao tournament API using Python.
 
 If you encounter a problem or have suggestions, feel free to open an issue.
 
 # Installation
+
 `pip install --upgrade crunchdao`
 
 # Usage
@@ -32,4 +36,3 @@ environment variable
     submission_id = client.upload(predictions)
     # set comment for the submission, to remember which model that is etc
     client.set_comment(submission_id, "Great model, learning_rate=0.01")
-
