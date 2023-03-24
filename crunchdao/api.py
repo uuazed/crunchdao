@@ -123,49 +123,26 @@ class Client:
         """
         response = requests.post(
             BASE_URL + "/v2/submissions",
+            params={"apiKey": self.apikey},
             files={"file": ("x", predictions.to_csv(index=False).encode('ascii'))},
-            data={"apiKey": self.apikey})
+        )
 
         if response.status_code == 200:
             logger.info("Submission submitted :)")
             submission_id = response.json()["id"]
             return submission_id
-        elif response.status_code == 423:
-            logger.error("Submissions are close")
-            logger.info("You can only submit during rounds eg: "
-                        "Friday 7pm GMT+1 to Sunday midnight GMT+1.")
-            logger.info("Or the server is currently crunching the submitted "
-                        "files, please wait some time before retrying.")
-        elif response.status_code == 422:
-            logger.error("API Key is missing or empty")
-            logger.info("Did you forget to fill the API_KEY variable?")
-        elif response.status_code == 404:
-            logger.error("Unknown API Key")
-            logger.info("You should check that the provided API key is valid "
-                        "and is the same as the one you've received by email.")
-        elif response.status_code == 400:
-            logger.error("The file must not be empty")
-            logger.info("You have send a empty file.")
-        elif response.status_code == 401:
-            logger.error("Your email hasn't been verified")
-            logger.info("Please verify your email or contact a cruncher.")
-        elif response.status_code == 403:
-            logger.error("Access Denied")
-            logger.info("Please setup your API_KEY.")
-        elif response.status_code == 409:
-            logger.error("Duplicate submission")
-            logger.info("Your work has already been submitted with the exact "
-                        "same results, if you think this a false positive, "
-                        "contact a cruncher.")
-            logger.info("MD5 collision probability: 1/2^128 (source: "
-                        "https://stackoverflow.com/a/288519/7292958)")
-        elif response.status_code == 429:
-            logger.error("Too many submissions")
+        elif response.status_code == 502:
+            logger.error("The server is not available")
+            logger.info("Please wait before retrying.")
         else:
-            logger.error(f"Server returned: {response.status_code}")
-            logger.info("Ouch! It seems that we were not expecting this kind "
-                        "of result from the server, if the probleme persist, "
-                        "contact a cruncher.")
+            body = response.json()
+            
+            if "message" in body:
+                logger.error(body["message"])
+            elif "code" in body:
+                logger.error(body["code"])
+            else:
+                logger.error(str(body))
 
     def submissions(self, user_id: int = None,
                     round_num: int = None) -> pd.DataFrame:
