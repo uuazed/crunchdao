@@ -123,8 +123,9 @@ class Client:
         """
         response = requests.post(
             BASE_URL + "/v2/submissions",
+            params={"apiKey": self.apikey},
             files={"file": ("x", predictions.to_csv(index=False).encode('ascii'))},
-            data={"apiKey": self.apikey})
+        )
 
         if response.status_code == 200:
             logger.info("Submission submitted :)")
