@@ -2,6 +2,12 @@
 
 Notable changes to this project.
 
+## v0.3.0 - 2023-03-24
+- improved error messages (PR #7)
+- resolve api usage issue (PR #7)
+- download example_submission along with the data (PR #5)
+- docs cleanup
+
 ## v0.2.2 - 2023-03-20
 - support downloading data in `parquet` format
 
