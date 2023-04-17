@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 import requests
 import pandas as pd
+import numpy as np
 import inflection
 
 from crunchdao import utils
@@ -250,6 +251,107 @@ class Client:
                    for key, val in data.items()}
         return cleaned
 
+    def get_scores(self, dataset=11, user_id: int = None, resolved_scores: bool=True) -> pd.DataFrame:
+        """Get the scores for the given dataset
+
+        Args:
+            dataset (int): id of the dataset (default is the master dataset)
+            user_id (int, optional): selected user_id, defaults to your own
+            resolved_scores: (boolean): return only resolved scores, default to True
+
+        Returns:
+            pd.DataFrame: scoring information with the following columns:
+                * scoring_date ('pandas.Timestamp')
+                * round_id (`int`)
+                * score (`float`)
+                * scoring_start (`pandas.Timestamp`)
+                * time_delta (`int`)
+                * target (`str`)
+                * scoring_end (`pandas.Timestamp`)
+                * is_resolved (`bool`)
+
+        Example:
+            >>> crunchdao.Client().get_scores(dataset=11)
+        """
+        datasets_dict = {1: 'dolly', 10: '3B1-signal', 4: 'e-kinetic', 5: 'c-mechanics',
+                      8: 'gordon-geeko', 9: 'b-volatility', 11: 'master'}
+        if dataset not in datasets_dict.keys():
+            raise Exception(f"Your input dataset is not in our database, please choose between the following {datasets_dict}")
+        else:
+            print(f"Getting your {datasets_dict[dataset]} dataset {'resolved ' if resolved_scores else ''}scores...")
+
+        if user_id is None:
+            user_id = "@me"
+            authorization = True
+        else:
+            authorization = False
+
+        # Get dataset rounds information
+        url=f'{BASE_URL}/v2/datasets/{dataset}/rounds'
+        data = self.raw_request(url, authorization=authorization)
+        dataset_rounds_dict = {}
+        for round in data:
+            inception_date = pd.to_datetime(round['inception'])     
+            if pd.isnull(inception_date):
+                continue
+            # Dataset before the master (11) had an inception date on wednesday      
+            scoring_start = inception_date + (pd.Timedelta(days=2) if dataset != 11 else pd.Timedelta(days=0))   
+            for i in range(2):
+                if utils.is_trading_day(scoring_start):
+                    scoring_start += pd.Timedelta(days=1)
+            dataset_rounds_dict[round['id']] = {
+                'inception': inception_date, 
+                'scoring_start': scoring_start
+            }
+
+        # Get dataset scores
+        scores = pd.DataFrame()
+        params = {}
+        for round_id, info in dataset_rounds_dict.items():
+            params["roundId"] = round_id
+            url = f"{BASE_URL}/v2/scores"
+            data = self.raw_request(url, params=params, authorization=authorization)
+            for day in data:
+                scores.loc[day['crunch']['date'], round_id] = day['value']
+        scores = scores.stack().reset_index().rename({'level_0':'scoring_date', 'level_1':'round_id', 0:'score'}, axis=1)
+
+        for round_id, info in dataset_rounds_dict.items():
+            scores.loc[scores['round_id'] == round_id, 'scoring_start'] = info['scoring_start']
+
+        # Get associated target
+        scores['scoring_date'] = pd.to_datetime(scores['scoring_date'])
+        scores['time_delta'] = (scores['scoring_date'] - scores['scoring_start']).dt.days + 1
+        scores['target'] = np.nan
+        targets_dict = (
+            {'target_w': 7, 'target_r': 30, 'target_g': 60, 'target_b': 90}
+            if dataset == 11 else
+            {'target_r': 30, 'target_g': 60, 'target_b': 90}
+        )
+        for target, horizon in targets_dict.items():
+            scores.loc[(scores.time_delta <= horizon) & (~scores.target.notna()), 'target'] = target
+
+        # Get last scoring date for each target
+        def get_target_end_date(grp):
+            target = grp.iloc[0]['target']
+            target_end_date = grp.scoring_start.iloc[0] + pd.Timedelta(days=targets_dict[target] - 1)
+            for i in range(7):
+                if utils.is_trading_day(target_end_date):
+                    break
+                else:
+                    target_end_date -= pd.Timedelta(days=1)
+            grp.loc[:, 'scoring_end'] = target_end_date 
+            return grp
+        scores = scores.groupby(['round_id', 'target'], group_keys=False).apply(lambda grp: get_target_end_date(grp))
+
+        # Add resolved targets filter
+        scores['is_resolved'] = False
+        scores.loc[scores.scoring_date == scores.scoring_end, 'is_resolved'] = True
+        scores = scores.sort_values(by=['round_id', 'scoring_date'])
+
+        if resolved_scores:
+            return scores[scores['is_resolved']]
+        else:
+            return scores
 
 if __name__ == "__main__":
     client = Client()

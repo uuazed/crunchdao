@@ -2,6 +2,9 @@
 
 Notable changes to this project.
 
+## v0.4.0 - 2023-04-17
+- added `get_scores` to get the scores
+
 ## v0.3.0 - 2023-03-24
 - improved error messages (PR #7)
 - resolve api usage issue (PR #7)
