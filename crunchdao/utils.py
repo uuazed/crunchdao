@@ -57,4 +57,4 @@ def is_trading_day(date: pd.Timestamp) -> bool:
     us_holidays = holidays.NYSE()
     is_bday = bool(len(pd.bdate_range(date, date)))
     is_not_holiday = date not in us_holidays
-    return True if is_bday and is_not_holiday else False
+    return is_bday and is_not_holiday

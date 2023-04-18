@@ -8,7 +8,6 @@ import numpy as np
 import inflection
 
 from crunchdao import utils
-import utils
 
 BASE_URL = "https://api.tournament.crunchdao.com"
 
@@ -336,8 +335,7 @@ class Client:
         scores = scores.groupby(['round_id', 'target'], group_keys=False).apply(lambda grp: get_target_end_date(grp))
 
         # Add resolved targets filter
-        scores['is_resolved'] = False
-        scores.loc[scores.scoring_date == scores.scoring_end, 'is_resolved'] = True
+        scores['is_resolved'] = scores.scoring_date == scores.scoring_end
         scores = scores.sort_values(by=['round_id', 'scoring_date'])
 
         if resolved_scores:
