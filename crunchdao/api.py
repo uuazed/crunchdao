@@ -8,7 +8,7 @@ import numpy as np
 import inflection
 
 from crunchdao import utils
-
+import utils
 
 BASE_URL = "https://api.tournament.crunchdao.com"
 
@@ -279,18 +279,22 @@ class Client:
             authorization = False
 
         # Get dataset rounds information
-        url=f'{BASE_URL}/v2/datasets/{dataset}/rounds'
+        url=f'{BASE_URL}/v2/datasets/11/rounds'
         data = self.raw_request(url, authorization=authorization)
         dataset_rounds_dict = {}
         for round in data:
             inception_date = pd.to_datetime(round['inception'])     
             if pd.isnull(inception_date):
                 continue
-            # Dataset before the master (11) had an inception date on wednesday      
-            scoring_start = inception_date + (pd.Timedelta(days=2) if dataset != 11 else pd.Timedelta(days=0))   
-            for i in range(2):
+            scoring_start = inception_date   
+            i = 0
+            # The scoring starts 2 trading days after the inception date
+            while scoring_start < inception_date + pd.Timedelta(days=7): 
+                if i == 2:
+                    break
                 if utils.is_trading_day(scoring_start):
-                    scoring_start += pd.Timedelta(days=1)
+                    i += 1
+                scoring_start += pd.Timedelta(days=1)
             dataset_rounds_dict[round['id']] = {
                 'inception': inception_date, 
                 'scoring_start': scoring_start
