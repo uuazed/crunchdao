@@ -136,7 +136,7 @@ class Client:
             logger.info("Please wait before retrying.")
         else:
             body = response.json()
-            
+
             if "message" in body:
                 logger.error(body["message"])
             elif "code" in body:
@@ -281,19 +281,19 @@ class Client:
         url=f'{BASE_URL}/v2/datasets/11/rounds'
         data = self.raw_request(url, authorization=authorization)
         dataset_rounds_dict = {}
-        for round in data:
-            inception_date = pd.to_datetime(round['inception'])     
+        for round_iter in data:
+            inception_date = pd.to_datetime(round_iter['inception'])
             if pd.isnull(inception_date):
                 continue
-            scoring_start = inception_date   
+            scoring_start = inception_date
             i = 0
             # The scoring starts 2 trading days after the inception date
-            while scoring_start < inception_date + pd.Timedelta(days=7) and i < 2: 
+            while scoring_start < inception_date + pd.Timedelta(days=7) and i < 2:
                 if utils.is_trading_day(scoring_start):
                     i += 1
                 scoring_start += pd.Timedelta(days=1)
-            dataset_rounds_dict[round['id']] = {
-                'inception': inception_date, 
+            dataset_rounds_dict[round_iter['id']] = {
+                'inception': inception_date,
                 'scoring_start': scoring_start
             }
 
@@ -305,14 +305,18 @@ class Client:
             data = self.raw_request(url, params=params, authorization=authorization)
             for day in data:
                 scores.loc[day['crunch']['date'], round_id] = day['value']
-        scores = scores.stack().reset_index().rename({'level_0':'scoring_date', 'level_1':'round_id', 0:'score'}, axis=1)
+        scores = scores.stack().reset_index().rename({
+            'level_0':'scoring_date',
+            'level_1':'round_id',
+            0:'score'}, axis=1)
 
         for round_id, info in dataset_rounds_dict.items():
             scores.loc[scores['round_id'] == round_id, 'scoring_start'] = info['scoring_start']
 
         # Get associated target
         scores['scoring_date'] = pd.to_datetime(scores['scoring_date'])
-        scores['time_delta'] = (scores['scoring_date'] - scores['scoring_start']).dt.days + 1 # +1: Include first and last day
+        scores['time_delta'] = (scores['scoring_date']
+            - scores['scoring_start']).dt.days + 1 # +1: Include first day
         scores['target'] = np.nan
         targets_dict = {'target_w': 7, 'target_r': 30, 'target_g': 60, 'target_b': 90}
         for target, horizon in targets_dict.items():
@@ -321,15 +325,15 @@ class Client:
         # Get last scoring date for each target
         def get_target_end_date(grp):
             target = grp.iloc[0]['target']
-            target_end_date = grp.scoring_start.iloc[0] + pd.Timedelta(days=targets_dict[target] - 1)
-            for i in range(7):
-                if utils.is_trading_day(target_end_date):
-                    break
-                else:
-                    target_end_date -= pd.Timedelta(days=1)
-            grp.loc[:, 'scoring_end'] = target_end_date 
+            target_end_date = (grp.scoring_start.iloc[0]
+                + pd.Timedelta(days=targets_dict[target] - 1))
+            while not utils.is_trading_day(target_end_date):
+                target_end_date -= pd.Timedelta(days=1)
+            grp.loc[:, 'scoring_end'] = target_end_date
             return grp
-        scores = scores.groupby(['round_id', 'target'], group_keys=False).apply(lambda grp: get_target_end_date(grp))
+        scores = scores \
+            .groupby(['round_id', 'target'], group_keys=False) \
+            .apply(lambda grp: get_target_end_date(grp))
 
         # Add resolved targets filter
         scores['is_resolved'] = scores.scoring_date == scores.scoring_end
@@ -337,8 +341,8 @@ class Client:
 
         if resolved_scores:
             return scores[scores['is_resolved']]
-        else:
-            return scores
+
+        return scores
 
 if __name__ == "__main__":
     client = Client()
