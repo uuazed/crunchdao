@@ -288,9 +288,7 @@ class Client:
             scoring_start = inception_date   
             i = 0
             # The scoring starts 2 trading days after the inception date
-            while scoring_start < inception_date + pd.Timedelta(days=7): 
-                if i == 2:
-                    break
+            while scoring_start < inception_date + pd.Timedelta(days=7) and i < 2: 
                 if utils.is_trading_day(scoring_start):
                     i += 1
                 scoring_start += pd.Timedelta(days=1)
@@ -301,9 +299,8 @@ class Client:
 
         # Get dataset scores
         scores = pd.DataFrame()
-        params = {}
         for round_id, info in dataset_rounds_dict.items():
-            params["roundId"] = round_id
+            params = {"roundId": round_id}
             url = f"{BASE_URL}/v2/scores"
             data = self.raw_request(url, params=params, authorization=authorization)
             for day in data:
