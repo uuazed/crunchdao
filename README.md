@@ -36,3 +36,5 @@ environment variable
     submission_id = client.upload(predictions)
     # set comment for the submission, to remember which model that is etc
     client.set_comment(submission_id, "Great model, learning_rate=0.01")
+    # Get your resolved targets live score on master dataset
+    client.get_scores()

@@ -3,7 +3,8 @@ import logging
 
 import tqdm
 import requests
-
+import pandas as pd
+import holidays
 
 logger = logging.getLogger(__name__)
 
@@ -50,3 +51,10 @@ def download_file(url: str, dest_path: str,
             dest_file.write(chunk)
             pbar.update(1024)
     return dest_path
+
+def is_trading_day(date: pd.Timestamp) -> bool:
+    """Tells if a given date is a trading day"""
+    us_holidays = holidays.NYSE()
+    is_bday = bool(len(pd.bdate_range(date, date)))
+    is_not_holiday = date not in us_holidays
+    return is_bday and is_not_holiday
