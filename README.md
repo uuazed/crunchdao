@@ -21,20 +21,22 @@ environment variable
 
 # Example usage
 
-    import crunchdao
-    # some API calls do not require logging in
-    client = crunchdao.Client(apikey="foo")
-    # download current dataset
-    client.download_data(directory=".")
-    # get information about your submissions
-    submissions = client.submissions()
-    print(submissions)  # this is a pandas Dataframe
-    # get configure of the current dataset
-    client.dataset_config()
-    # upload predictions
-    predictions = ....  # pandas DataFrame containing your predictions
-    submission_id = client.upload(predictions)
-    # set comment for the submission, to remember which model that is etc
-    client.set_comment(submission_id, "Great model, learning_rate=0.01")
-    # Get your resolved targets live score on master dataset
-    client.get_scores()
+```python
+import crunchdao
+# some API calls do not require logging in
+client = crunchdao.Client(apikey="foo")
+# download current dataset
+client.download_data(directory=".")
+# get information about your submissions
+submissions = client.submissions()
+print(submissions)  # this is a pandas Dataframe
+# get configure of the current dataset
+client.dataset_config()
+# upload predictions
+predictions = ....  # pandas DataFrame containing your predictions
+submission_id = client.upload(predictions)
+# set comment for the submission, to remember which model that is etc
+client.set_comment(submission_id, "Great model, learning_rate=0.01")
+# Get your resolved targets live score on master dataset
+client.get_scores()
+```
