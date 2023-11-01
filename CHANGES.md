@@ -2,6 +2,9 @@
 
 Notable changes to this project.
 
+## v0.4.1 - 2023-10-31
+- unpin pandas version
+
 ## v0.4.0 - 2023-04-21
 - added `get_scores` to get the scores (PR #8)
 
