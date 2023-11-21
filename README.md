@@ -1,7 +1,7 @@
 # Python API for the Crunchdao machine learning tournament
 <h1 align="center">
 
-[![PyPi version](https://badgen.net/pypi/v/crunchdao/)](https://pypi.com/project/crunchdao)
+[![PyPi version](https://badgen.net/pypi/v/crunchdao/)](https://pypi.org/project/crunchdao)
 </h1>
 
 Interact with the Crunchdao tournament API using Python.
